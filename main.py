@@ -120,7 +120,10 @@ class MainWindow(QMainWindow):
             cnt+=1
         self.show_process(cnt,len(file_list))
         path = Path(self.path)
-        dir_name = 'output_' + str(path.parent.name)
+        if len(file_list)>1:
+            dir_name = 'output_' + str(path.name)
+        else:
+            dir_name = 'output_' + str(path.parent.name)
         opt_path = Path(os.getcwd()) / Path(dir_name)
         pyautogui.alert(text=f"处理完毕,保存在{opt_path}", title="提示")
         os.startfile(opt_path.resolve())
