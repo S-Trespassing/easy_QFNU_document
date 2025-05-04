@@ -123,6 +123,7 @@ class MainWindow(QMainWindow):
         dir_name = 'output_' + str(path.parent.name)
         opt_path = Path(os.getcwd()) / Path(dir_name)
         pyautogui.alert(text=f"处理完毕,保存在{opt_path}", title="提示")
+        os.startfile(opt_path.resolve())
     def select_file(self):
         path, _ = QFileDialog.getOpenFileName(
             parent=self,
@@ -221,10 +222,11 @@ class MainWindow(QMainWindow):
 if __name__=='__main__':
     try:
         app=client.Dispatch('Word.Application')
-        appui = QApplication([])
-        mainw = MainWindow()
-        mainw.show()
-        appui.exec()
-        app.Quit()
     except:
-        pyautogui.alert(title="提示",text="您的电脑貌似并没有安装word office...")
+        pyautogui.alert(title="提示", text="您的电脑貌似并没有安装microsoft word...")
+        exit(0)
+    appui = QApplication([])
+    mainw = MainWindow()
+    mainw.show()
+    appui.exec()
+    app.Quit()
