@@ -39,9 +39,6 @@ class Ui_MainWindow(object):
         MainWindow.resize(640, 400)
         MainWindow.setMinimumSize(QSize(640, 400))
         MainWindow.setMaximumSize(QSize(640, 400))
-        icon = QIcon()
-        icon.addFile(u"OIP-C.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
@@ -155,7 +152,7 @@ class MainWindow(QMainWindow):
         # 防止路径不是绝对路径
         path = path.resolve()
         if Path.is_file(path):
-            if path.suffix in('doc' or 'docx'):
+            if path.suffix in ['.doc','.docx']:
                 file_list.append(str(path))
                 print("文件类型正确")
                 return [str(path)]
