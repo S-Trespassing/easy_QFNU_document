@@ -1,1 +1,2 @@
 # -尝试用python脚本速通曲Star公文
+本脚本word处理完全基于pywin32实现,需要电脑上安装了microsoft word
