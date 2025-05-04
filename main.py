@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 """
 @Project ：main.py 
-@File    ：qt设计.py
+@File    ：main.py
 @IDE     ：PyCharm 
 @Author  ：Trespassing
 @Date    ：2025/5/4 21:08 
