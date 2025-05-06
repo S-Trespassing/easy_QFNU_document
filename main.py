@@ -115,9 +115,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"\u66f2Star\u516c\u6587\u5904\u7406demo", None))
         self.action1.setText(QCoreApplication.translate("MainWindow", u"\u9047\u5230\u95ee\u9898?", None))
-        self.action2.setText(QCoreApplication.translate("MainWindow", u"\u5173\u4e8e\u672c\u9879\u76ee", None))
-        self.action3.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u76f4\u8fbe", None))
-        self.action4.setText(QCoreApplication.translate("MainWindow", u"\u8054\u7cfb\u4f5c\u8005", None))
+        self.action2.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u76f4\u8fbe", None))
+        self.action3.setText(QCoreApplication.translate("MainWindow", u"\u8054\u7cfb\u4f5c\u8005", None))
+        self.action4.setText(QCoreApplication.translate("MainWindow", u"\u5173\u4e8e\u9879\u76ee", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u66f2Star\u516c\u6587\u5904\u7406demo", None))
         self.bt_dl.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u5904\u7406", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\u8f93\u5165\u6587\u4ef6\u8def\u5f84:", None))
@@ -136,9 +136,10 @@ class MainWindow(QMainWindow):
         self.ui.bt_dl.clicked.connect(self.start_to_del)
         self.path=""
         self.ui.action1.triggered.connect(lambda:pyautogui.alert(text="您可以通过qq:2669807502联系作者或者到github提交issue\n项目地址:https://github.com/S-Trespassing/easy_QFNU_document\n期待您的宝贵意见~~~",title="遇到问题?"))
-        self.ui.action2.triggered.connect(lambda:pyautogui.alert(text="本项目的初衷是一键处理繁琐的公文格式,您可以对项目对项目进行各种二创~\n项目地址:https://github.com/S-Trespassing/easy_QFNU_document\n",title="关于项目"))
-        self.ui.action3.triggered.connect(lambda:webbrowser.open_new_tab("https://github.com/S-Trespassing/easy_QFNU_document"))
-        self.ui.action4.triggered.connect(lambda:webbrowser.open_new_tab("https://qm.qq.com/cgi-bin/qm/qr?k=qIaENQvu9-jWTr5x2NUC2s-jTupUokdk"))
+        self.ui.action2.triggered.connect(lambda:webbrowser.open_new_tab("https://github.com/S-Trespassing/easy_QFNU_document"))
+        self.ui.action3.triggered.connect(lambda:webbrowser.open_new_tab("https://qm.qq.com/cgi-bin/qm/qr?k=qIaENQvu9-jWTr5x2NUC2s-jTupUokdk"))
+        self.ui.action4.triggered.connect(lambda:pyautogui.alert(text="本项目的初衷是一键处理繁琐的公文格式,您可以对项目对项目进行各种二创~\n项目地址:https://github.com/S-Trespassing/easy_QFNU_document\n",title="关于项目"))
+
     def show_process(self,i,all):
         i=int(i)
         all=int(all)
