@@ -7,6 +7,7 @@
 @Author  ：Trespassing
 @Date    ：2025/5/4 21:08 
 """
+import pythoncom
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -24,6 +25,7 @@ from pathlib import Path
 import os
 import pyautogui
 import webbrowser
+from threading import Thread
 first_level = [
     '一、', '二、', '三、', '四、', '五、',
     '六、', '七、', '八、', '九、', '十、',
@@ -139,6 +141,8 @@ class MainWindow(QMainWindow):
         self.ui.action2.triggered.connect(lambda:webbrowser.open_new_tab("https://github.com/S-Trespassing/easy_QFNU_document"))
         self.ui.action3.triggered.connect(lambda:webbrowser.open_new_tab("https://qm.qq.com/cgi-bin/qm/qr?k=qIaENQvu9-jWTr5x2NUC2s-jTupUokdk"))
         self.ui.action4.triggered.connect(lambda:pyautogui.alert(text="本项目的初衷是一键处理繁琐的公文格式,您可以对项目对项目进行各种二创~\n项目地址:https://github.com/S-Trespassing/easy_QFNU_document\n",title="关于项目"))
+        #创建线程池
+        self.thread_list=[]
 
     def show_process(self,i,all):
         i=int(i)
@@ -152,10 +156,15 @@ class MainWindow(QMainWindow):
             return
         cnt=0
         for file in file_list:
-            self.change_format(file)
-            self.show_process(cnt,len(file_list))
-            cnt+=1
-        self.show_process(cnt,len(file_list))
+            thread=Thread(target=self.change_format,args=(file,))
+            self.thread_list.append(thread)
+            thread.start()
+            # self.change_format(file)
+            # self.show_process(cnt,len(file_list))
+            # cnt+=1
+        for  i in range(len(self.thread_list)):
+            self.thread_list[i].join()
+            self.show_process(i+1,len(self.thread_list))
         path = Path(self.path)
         if len(file_list)>1:
             dir_name = 'output_' + str(path.name)
@@ -205,68 +214,77 @@ class MainWindow(QMainWindow):
             file_list.extend([str(file) for file in path.glob('*.docx')])
             return file_list
     def change_format(self,path):
-        try:
-            app.Visible = False
-            app.DisplayAlerts = False
-            doc = app.Documents.Open(path)
-            # 设置纸张
-            for section in doc.Sections:
-                section.PageSetup.PageWidth = 595.3  # 210mm ≈ 595.3 磅
-                section.PageSetup.PageHeight = 841.9  # 297mm ≈ 841.9 磅
-                section.PageSetup.TopMargin = 3.7 * 28.35  # 上边距 3.7cm
-                section.PageSetup.BottomMargin = 3.2 * 28.35  # 下边距 3.2cm
-                section.PageSetup.LeftMargin = 2.7 * 28.35  # 左边距 2.7cm
-                section.PageSetup.RightMargin = 2.7 * 28.35  # 右边距 2.7cm
-            # 单独处理标题
-            doc.Paragraphs(1).Range.Font.Name = "方正小宋简体"
-            doc.Paragraphs(1).Range.Font.Size = "35"
-            doc.Paragraphs(1).Format.Alignment = 1
-            doc.Paragraphs(1).LineSpacingRule = 4
-            doc.Paragraphs(1).Format.LineSpacing = 35
-            cnt = 0
-            for paragraph in doc.Paragraphs:
-                if int(cnt) == 0:
-                    cnt = 1
-                    continue
-                if re.match(r'^\s*[一二三四五六七八九十]\s*、.*', paragraph.Range.Text):
+        # try:
+        # 每个线程需要初始化COM
+        pythoncom.CoInitialize()
+        app=client.Dispatch('Word.Application')
+        app.Visible = False
+        app.DisplayAlerts = False
+        doc = app.Documents.Open(path)
+        # 设置纸张
+        for section in doc.Sections:
+            section.PageSetup.PageWidth = 595.3  # 210mm ≈ 595.3 磅
+            section.PageSetup.PageHeight = 841.9  # 297mm ≈ 841.9 磅
+            section.PageSetup.TopMargin = 3.7 * 28.35  # 上边距 3.7cm
+            section.PageSetup.BottomMargin = 3.2 * 28.35  # 下边距 3.2cm
+            section.PageSetup.LeftMargin = 2.7 * 28.35  # 左边距 2.7cm
+            section.PageSetup.RightMargin = 2.7 * 28.35  # 右边距 2.7cm
+        # 单独处理标题
+        doc.Paragraphs(1).Range.Font.Name = "方正小宋简体"
+        doc.Paragraphs(1).Range.Font.Size = "35"
+        doc.Paragraphs(1).Format.Alignment = 1
+        doc.Paragraphs(1).LineSpacingRule = 4
+        doc.Paragraphs(1).Format.LineSpacing = 35
+        cnt = 0
+        for paragraph in doc.Paragraphs:
+            if int(cnt) == 0:
+                cnt = 1
+                continue
+            if re.match(r'^\s*[一二三四五六七八九十]\s*、.*', paragraph.Range.Text):
+                paragraph.Range.Font.Name = '黑体'
+            elif re.match(r'^\s*\([一二三四五六七八九十]\).*', paragraph.Range.Text):
+                paragraph.Range.Font.Name = '楷体'
+            elif paragraph.Range.ListFormat.ListType == 3:
+                if paragraph.Range.ListFormat.ListString in first_level:
                     paragraph.Range.Font.Name = '黑体'
-                elif re.match(r'^\s*\([一二三四五六七八九十]\).*', paragraph.Range.Text):
+                    # print(paragraph.Range.ListFormat.ListString)
+                    # print(paragraph.Range.Text)
+                elif paragraph.Range.ListFormat.ListString in second_level:
                     paragraph.Range.Font.Name = '楷体'
-                elif paragraph.Range.ListFormat.ListType == 3:
-                    if paragraph.Range.ListFormat.ListString in first_level:
-                        paragraph.Range.Font.Name = '黑体'
-                        # print(paragraph.Range.ListFormat.ListString)
-                        # print(paragraph.Range.Text)
-                    elif paragraph.Range.ListFormat.ListString in second_level:
-                        paragraph.Range.Font.Name = '楷体'
-                        # print("这是二级标题")
-                    else:
-                        paragraph.Range.Font.Name = "仿宋"
+                    # print("这是二级标题")
                 else:
                     paragraph.Range.Font.Name = "仿宋"
-                paragraph.Range.Font.Size = "16"
-                paragraph.Format.Alignment = 3
-                paragraph.LineSpacingRule = 4
-                paragraph.Format.LineSpacing = 29
-                paragraph.Format.CharacterUnitFirstLineIndent = 2
-            path = Path(path)
-            dir_name = 'output_' + str(path.parent.name)
-            os.makedirs(dir_name, exist_ok=True)
-            file_name = str(path.name)
-            opt_path = Path(os.getcwd()) / Path(dir_name) / Path(file_name)
-            doc.SaveAs(FileName=str(opt_path))
-            doc.Close()
-            return
-        except:
-            pyautogui.alert(text="很遗憾您的文档未被正确处理,出现错误的原因大概率是某个word文件已被占用",title="提示")
+            else:
+                paragraph.Range.Font.Name = "仿宋"
+            paragraph.Range.Font.Size = "16"
+            paragraph.Format.Alignment = 3
+            paragraph.LineSpacingRule = 4
+            paragraph.Format.LineSpacing = 29
+            paragraph.Format.CharacterUnitFirstLineIndent = 2
+        path = Path(path)
+        dir_name = 'output_' + str(path.parent.name)
+        os.makedirs(dir_name, exist_ok=True)
+        file_name = str(path.name)
+        opt_path = Path(os.getcwd()) / Path(dir_name) / Path(file_name)
+        doc.SaveAs(FileName=str(opt_path))
+        doc.Close()
+        app.Quit()
+        # 释放COM资源
+        pythoncom.CoUninitialize()
+        return
+        # except:
+        #     pyautogui.alert(text="很遗憾您的文档未被正确处理,出现错误的原因大概率是某个word文件已被占用",title="提示")
 if __name__=='__main__':
-    try:
-        app=client.Dispatch('Word.Application')
-    except:
-        pyautogui.alert(title="提示", text="您的电脑貌似并没有安装microsoft word...")
-        exit(0)
+    # try:
+    #     app=client.Dispatch('Word.Application')
+    #     app.Visible = False
+    #     app.DisplayAlerts = False
+    #     app.Quit()
+    # except:
+    #     pyautogui.alert(title="提示", text="您的电脑貌似并没有安装microsoft word...")
+    #     exit(0)
     appui = QApplication([])
     mainw = MainWindow()
     mainw.show()
+    # app.Quit()
     appui.exec()
-    app.Quit()
